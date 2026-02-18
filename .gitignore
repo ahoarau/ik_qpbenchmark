@@ -4,3 +4,4 @@
 .ropeproject
 .tox
 generate/videos
+.pixi/
