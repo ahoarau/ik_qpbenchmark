@@ -6,6 +6,8 @@
 
 from pathlib import Path
 
+import numpy as np
+import pyarrow.parquet as pq
 import qpbenchmark
 from qpbenchmark.benchmark import main
 
@@ -30,8 +32,35 @@ class IkQpbenchmark(qpbenchmark.ParquetTestSet):
 
     def __init__(self):
         script_dir = Path(__file__).resolve().parent
-        parquet_path = script_dir / "data" / "ik_qpbenchmark.parquet"
-        super().__init__(parquet_path)
+        self.parquet_path = script_dir / "data" / "ik_qpbenchmark.parquet"
+        qpbenchmark.TestSet.__init__(self)
+
+    def __iter__(self):
+        limit = getattr(self, "limit", 0)
+        count = 0
+        parquet_file = pq.ParquetFile(self.parquet_path)
+        for batch in parquet_file.iter_batches():
+            df = batch.to_pandas()
+            for _, row in df.iterrows():
+                if limit and count >= limit:
+                    return
+                n = row["q"].size
+                pb_data = {}
+                for key in qpbenchmark.ProblemList.KEYS:
+                    if isinstance(row[key], np.ndarray):
+                        # Copy before reshape (reshape requires a writeable array)
+                        pb_data[key] = row[key].copy()
+                        if key in ("P", "G", "A"):
+                            m = pb_data[key].size // n
+                            pb_data[key] = pb_data[key].reshape((m, n))
+                    else:  # string or None
+                        pb_data[key] = row[key]
+                yield qpbenchmark.Problem(**pb_data)
+                count += 1
+
+    def count_problems(self) -> int:
+        parquet_file = pq.ParquetFile(self.parquet_path)
+        return parquet_file.metadata.num_rows
 
 
 if __name__ == "__main__":
