@@ -6,7 +6,8 @@ version = "0.1.0"
 preview = ["pixi-build"]
 
 [tasks]
-ik_qpbenchmark = "qpbenchmark ./ik_qpbenchmark.py run"
+ik_qpbenchmark = "python ./ik_qpbenchmark.py run"
+scenarios_benchmark = "python ./scenarios_benchmark.py run"
 
 [dependencies]
 clarabel = ">=0.4.1"
@@ -26,6 +27,8 @@ qpbenchmark = { path = "../qpbenchmark" }
 qpoases = ">=3.2.0"
 quadprog = ">=0.1.11"
 scs = ">=3.2.2"
+pink = ">=4.0.0,<5"
+example-robot-data = ">=4.4.0,<5"
 
 [pypi-dependencies]
 highspy = ">=1.5.2"
