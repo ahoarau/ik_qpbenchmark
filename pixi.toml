@@ -1,7 +1,7 @@
 [workspace]
 name = "ik_qpbenchmark"
 channels = ["https://conda.anaconda.org/conda-forge", "https://conda.anaconda.org/gurobi"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
 version = "0.1.0"
 preview = ["pixi-build"]
 
